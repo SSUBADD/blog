@@ -1,0 +1,17 @@
+{
+  "id": "2025-MM-DD-topic",
+  "date": "2025-MM-DD",
+  "day": DD,
+  "dayName": "월",
+  "title": "제목을 입력하세요 (40자 이내)",
+  "short": "짧은제목",
+  "cat": ["trend"],
+  "keywords": ["키워드1", "키워드2", "키워드3"],
+  "desc": "100자 이내 설명",
+  "difficulty": 2,
+  "time": 25,
+  "priority": "medium",
+  "trending": false,
+  "cta": "행동유도 문구"
+}
+
