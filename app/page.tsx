@@ -22,22 +22,16 @@ const quickLinks = [
     href: "/branding",
   },
   {
-    title: "오늘의 루틴",
-    description: "미션 체크로 리듬 만들기",
-    href: "/mission",
+    title: "블로그 계획",
+    description: "미션과 루틴으로 성장 관리",
+    href: "/plan",
   },
 ]
 
 export default function HomePage() {
-  const [usageStats, setUsageStats] = useState({
-    title: { used: 0, limit: 3 },
-    body: { used: 0, limit: 1 },
-    diagnosis: { used: 0, limit: 1 },
-  })
   const [highlightedCalendar, setHighlightedCalendar] = useState<CalendarItem[]>([])
 
   useEffect(() => {
-    fetchUsage()
     loadCalendarData()
   }, [])
 
@@ -52,39 +46,6 @@ export default function HomePage() {
     }
   }
 
-  const fetchUsage = async () => {
-    try {
-      const response = await fetch('/api/usage')
-      const data = await response.json()
-      if (data.success && data.stats) {
-        setUsageStats(data.stats)
-      }
-    } catch (error) {
-      console.error('Error fetching usage:', error)
-    }
-  }
-
-  const automationStatus = [
-    {
-      title: "AI 제목",
-      value: `${usageStats.title.used}/${usageStats.title.limit}`,
-      status: usageStats.title.used >= usageStats.title.limit ? "오늘 할당량 모두 사용" : "사용 가능",
-      percent: (usageStats.title.used / usageStats.title.limit) * 100,
-    },
-    {
-      title: "AI 본문",
-      value: `${usageStats.body.used}/${usageStats.body.limit}`,
-      status: "Free 플랜 기준",
-      percent: (usageStats.body.used / usageStats.body.limit) * 100,
-    },
-    {
-      title: "블로그 진단",
-      value: `${usageStats.diagnosis.used}/${usageStats.diagnosis.limit}`,
-      status: usageStats.diagnosis.used === 0 ? "오늘 미사용" : "사용 완료",
-      percent: (usageStats.diagnosis.used / usageStats.diagnosis.limit) * 100,
-    },
-  ]
-
   return (
     <div className="space-y-8">
       <section >
@@ -92,16 +53,15 @@ export default function HomePage() {
           <div className="space-y-4">
             <div className="inline-flex items-center gap-2 rounded-full border bg-secondary px-4 py-1 text-sm font-medium text-secondary-foreground">
               <Sparkles className="h-4 w-4 text-primary" />
-              오늘 추천 6건 업데이트 완료
+              주간/월간 블로그 글감
             </div>
-            <h1 className="text-3xl font-bold leading-tight text-foreground">
-              매일 아침 확인하는
+            <h1 class="text-3xl font-bold leading-tight text-foreground">
+              주간/월간 단위로 관리하는
               <br />
-              블로그 콘텐츠 컨트롤 타워
+              블로그 글감·이슈 트래킹
             </h1>
-            <p className="text-base text-muted-foreground">
-              최신 이슈 캘린더, AI 카피라이팅, 브랜드 진단, 실행 루틴까지 한 곳에서 정리하세요.
-              무료 플랜에서도 핵심 기능을 모두 시도할 수 있습니다.
+            <p class="text-base text-muted-foreground">
+              캘린더에서 최신 트렌드와 시즌성 이슈를 확인하고, AI로 빠르게 글감을 만드세요.
             </p>
             <div className="flex flex-wrap gap-3">
               <Button asChild size="lg" className="text-base font-semibold">
@@ -120,23 +80,7 @@ export default function HomePage() {
               </Button>
             </div>
           </div>
-          <Card className="w-full max-w-md">
-            <CardHeader>
-                <CardTitle className="text-primary">이번 주 자동화 요약</CardTitle>
-            </CardHeader>
-            <CardContent className="mt-5 space-y-4">
-              {automationStatus.map((item) => (
-                <div key={item.title} className="rounded-lg border bg-secondary/30 p-4">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-muted-foreground">{item.title}</p>
-                    <span className="text-base font-semibold text-foreground">{item.value}</span>
-                  </div>
-                  <Progress value={item.percent} className="mt-3" />
-                  <p className="mt-2 text-xs text-primary">{item.status}</p>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+
         </div>
       </section>
 
@@ -181,44 +125,8 @@ export default function HomePage() {
         )}
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-xl">
-              <CalendarDays className="h-5 w-5 text-primary" />
-              루틴 & 미션
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-3 rounded-lg bg-primary/10 px-4 py-3 text-primary">
-              <CheckCircle2 className="h-5 w-5" />
-              오늘 미션 2/4 완료 · 집중 시간 35분
-            </div>
-            <ul className="space-y-3">
-              <li className="flex items-center justify-between rounded-lg border px-4 py-3">
-                <span>전날 퍼포먼스 리뷰</span>
-                <Badge variant="secondary">
-                  완료
-                </Badge>
-              </li>
-              <li className="flex items-center justify-between rounded-lg border px-4 py-3">
-                <span>AI 제목 3개 테스트</span>
-                <Badge>
-                  진행 중
-                </Badge>
-              </li>
-              <li className="flex items-center justify-between rounded-lg border px-4 py-3">
-                <span>CTA AB 테스트 기록</span>
-                <Badge variant="outline">
-                  예정
-                </Badge>
-              </li>
-            </ul>
-            <Button asChild className="mt-2 w-full">
-              <Link href="/mission">미션 업데이트</Link>
-            </Button>
-          </CardContent>
-        </Card>
+      <section className="grid gap-6 lg:grid-cols-1">
+
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-xl">

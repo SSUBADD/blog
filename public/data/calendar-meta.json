@@ -1,0 +1,22 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2025-01-27T10:00:00Z",
+  "availableMonths": [
+    {
+      "year": 2025,
+      "month": 1,
+      "file": "2025-01.json",
+      "theme": "새해 계획 & 겨울 시즌",
+      "itemCount": 31,
+      "highlights": ["새해목표", "겨울세일", "새학기준비"]
+    }
+  ],
+  "categories": [
+    { "id": "trend", "name": "트렌드", "color": "#f59e0b" },
+    { "id": "season", "name": "시즌", "color": "#10b981" },
+    { "id": "edu", "name": "교육", "color": "#3b82f6" },
+    { "id": "lifestyle", "name": "라이프", "color": "#8b5cf6" },
+    { "id": "business", "name": "비즈니스", "color": "#ef4444" }
+  ]
+}
+
