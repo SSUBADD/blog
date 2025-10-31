@@ -60,7 +60,7 @@ export default function HomePage() {
               <br />
               블로그 글감·이슈 트래킹
             </h1>
-            <p class="text-base text-muted-foreground">
+            <p className="text-base text-muted-foreground">
               캘린더에서 최신 트렌드와 시즌성 이슈를 확인하고, AI로 빠르게 글감을 만드세요.
             </p>
             <div className="flex flex-wrap gap-3">
