@@ -55,7 +55,7 @@ export default function HomePage() {
               <Sparkles className="h-4 w-4 text-primary" />
               주간/월간 블로그 글감
             </div>
-            <h1 class="text-3xl font-bold leading-tight text-foreground">
+            <h1 className="text-3xl font-bold leading-tight text-foreground">
               주간/월간 단위로 관리하는
               <br />
               블로그 글감·이슈 트래킹
