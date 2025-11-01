@@ -87,28 +87,7 @@ async function getPopularKeywords() {
   }
 }
 
-// Fetch trend chart data for the top keyword
-async function getTrendChartData(topKeyword: string) {
-    if (!topKeyword) return [];
-    try {
-        const interestData = await googleTrends.interestOverTime({
-            keyword: topKeyword,
-            startTime: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // Last 7 days
-            geo: 'KR',
-        });
-        const timelineData = JSON.parse(interestData).default.timelineData;
-        return timelineData.map((d: any) => ({
-            date: d.formattedAxisTime,
-            value: d.value[0],
-        }));
-    } catch (error) {
-        console.error("Error fetching trend chart data:", error);
-        return [
-            { date: '10/25', value: 120 },
-            { date: '10/26', value: 200 },
-        ];
-    }
-}
+
 
 // Fetch weather data
 async function getWeatherData() {
@@ -159,9 +138,8 @@ export async function GET(request: Request) {
   const popularKeywords = await getPopularKeywords();
   const topKeyword = popularKeywords.length > 0 ? popularKeywords.reduce((a, b) => a.rank > b.rank ? a : b).keyword : '마케팅';
   
-  const [timeline, trendChart, weather] = await Promise.all([
+  const [timeline, weather] = await Promise.all([
     getTimelineData(tab),
-    getTrendChartData(topKeyword),
     getWeatherData(),
   ]);
 
@@ -178,7 +156,6 @@ export async function GET(request: Request) {
   return NextResponse.json({
     timeline: filteredTimeline,
     popularKeywords,
-    trendChart,
     aiRecommendation,
     weather,
     categories: ['계절', '이벤트', '쇼핑', '건강', '여행'],

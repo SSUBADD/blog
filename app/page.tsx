@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
+
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -135,26 +135,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>📈 검색량 추이 차트 (최근 7일)</CardTitle>
-            </CardHeader>
-            <CardContent className="h-[250px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={data.trendChart} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                  <XAxis dataKey="date" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis fontSize={12} tickLine={false} axisLine={false} />
-                  <Tooltip 
-                    contentStyle={{
-                      background: "hsl(var(--background))",
-                      borderColor: "hsl(var(--border))",
-                    }}
-                  />
-                  <Area type="monotone" dataKey="value" strokeWidth={2} stroke="hsl(var(--primary))" fill="hsl(var(--primary) / 0.2)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+
         </div>
 
         {/* Right Column */}
