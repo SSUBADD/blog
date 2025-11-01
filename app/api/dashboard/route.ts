@@ -59,8 +59,8 @@ async function getTimelineData(tab: string): Promise<CalendarItem[]> {
   } catch (error) {
     console.error("Error fetching timeline data:", error);
     return [
-        { id: 1, date: '11/1', title: '김치의 날', icon: '🔥', category: 'event' },
-        { id: 2, date: '11/7', title: '입동', icon: '🍂', category: 'season' },
+        { id: '1', date: '11/1', title: '김치의 날', icon: '🔥', category: 'event' },
+        { id: '2', date: '11/7', title: '입동', icon: '🍂', category: 'season' },
     ];
   }
 }
