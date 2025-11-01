@@ -18,7 +18,8 @@ import {
   type CalendarItem
 } from '@/lib/calendar-loader'
 import { cn } from '@/lib/utils'
-import { parseISO, isSameDay } from 'date-fns'
+import { parseISO, isSameDay, format, subMonths, addMonths } from 'date-fns'
+import { ko } from 'date-fns/locale'
 
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date())
@@ -180,26 +181,8 @@ export default function CalendarPage() {
             modifiers={{
               hasItems: daysWithItems,
             }}
-            modifiersStyles={{
-              hasItems: {
-                position: 'relative',
-              }
-            }}
-            components={{
-              DayContent: (props) => {
-                const { date, activeModifiers } = props;
-                const hasItems = activeModifiers.hasItems;
-                const isSelected = activeModifiers.selected;
-
-                return (
-                  <div className="relative flex h-full w-full items-center justify-center">
-                    {format(date, 'd')}
-                    {hasItems && !isSelected && (
-                      <div className="absolute bottom-1 h-1 w-1 rounded-full bg-primary" />
-                    )}
-                  </div>
-                );
-              }
+            modifiersClassNames={{
+              hasItems: 'relative after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:h-1 after:w-1 after:rounded-full after:bg-primary',
             }}
             className="w-full"
           />
