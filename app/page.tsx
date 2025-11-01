@@ -22,15 +22,7 @@ interface PopularKeyword {
   rank: number;
 }
 
-interface TrendChartData {
-  date: string;
-  value: number;
-}
-
 interface DashboardData {
-  timeline: TimelineItem[];
-  popularKeywords: PopularKeyword[];
-  trendChart: TrendChartData[];
   aiRecommendation: {
     combination: string[];
     prompt: string;
