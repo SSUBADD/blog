@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2025-01-27T10:00:00Z",
+  "lastUpdated": "2025-11-01T10:00:00Z",
   "availableMonths": [
     {
       "year": 2025,
@@ -9,6 +9,22 @@
       "theme": "새해 계획 & 겨울 시즌",
       "itemCount": 31,
       "highlights": ["새해목표", "겨울세일", "새학기준비"]
+    },
+    {
+      "year": 2025,
+      "month": 11,
+      "file": "2025-11.json",
+      "theme": "가을 마무리 & 연말 준비",
+      "itemCount": 26,
+      "highlights": ["김치의날", "입동", "블랙프라이데이"]
+    },
+    {
+      "year": 2025,
+      "month": 12,
+      "file": "2025-12.json",
+      "theme": "연말 시즌 & 크리스마스",
+      "itemCount": 27,
+      "highlights": ["크리스마스", "연말결산", "새해준비"]
     }
   ],
   "categories": [
