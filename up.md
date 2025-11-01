@@ -22,8 +22,8 @@
 
 🛠️ 사용 기술
 UI
-bashshadcn/ui: tabs, badge, card
-recharts: 차트
+bash shadcn/ui: tabs, badge, card
+charts
 lucide-react: 아이콘
 데이터
 bash# 무료 API

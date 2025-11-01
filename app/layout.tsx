@@ -16,9 +16,9 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "블로그 뭐쓰지 AI",
+  title: "블로그 글감 연구소 - 매일 뭐 쓰지? 고민 끝",
   description:
-    "매일 업데이트되는 이슈 캘린더와 AI 카피라이팅, 브랜드 진단을 한 번에 제공하는 블로그 콘텐츠 랩",
+    "실시간 트렌드 기반 글감 추천, AI 키워드 조합, 체계적인 블로그 계획 관리까지. 블로거를 위한 스마트한 글감 연구소",
 }
 
 export default function RootLayout({

@@ -1,164 +1,309 @@
-﻿import Link from "next/link"
+import Link from "next/link"
+import { TrendingUp, Calendar, Sparkles, CheckSquare, Flame, Leaf, ShoppingBag } from "lucide-react"
 
-const featureCards = [
+const trendingTopics = [
+  { icon: Flame, title: "김치의 날", date: "11/1", category: "이벤트" },
+  { icon: Leaf, title: "입동", date: "11/7", category: "계절" },
+  { icon: ShoppingBag, title: "블랙프라이데이", date: "11/29", category: "쇼핑" },
+]
+
+const coreFeatures = [
   {
-    title: "만세력 캘린더",
-    description:
-      "날짜를 선택하면 lunar-javascript로 계산한 간지·오행을 바로 확인하고 감정과 메모를 기록할 수 있어요.",
+    icon: Calendar,
+    title: "매일 업데이트되는 글감 캘린더",
+    description: "기념일, 이벤트, 계절 키워드를 자동으로 수집해서 오늘/이번주/이번달 타임라인으로 제공합니다.",
     href: "/calendar",
-    cta: "캘린더 열기"
   },
   {
-    title: "감정 통계",
-    description:
-      "최근 일기의 감정 추세와 오행 밸런스를 차트로 시각화해 패턴을 빠르게 이해해요.",
-    href: "/stats",
-    cta: "통계 보기"
+    icon: CheckSquare,
+    title: "블로그 계획 관리",
+    description: "글감 선택부터 제목 작성, 마감일 설정까지. 투두리스트로 진행 상황을 체계적으로 추적하세요.",
+    href: "/plan",
   },
   {
-    title: "커뮤니티 & 콘텐츠",
-    description:
-      "다른 사람의 기록을 참고하고, 자동 발행되는 연간 운세 콘텐츠로 영감을 얻을 수 있어요.",
-    href: "/community",
-    cta: "살펴보기"
-  }
+    icon: Sparkles,
+    title: "AI 키워드 조합 추천",
+    description: '"블프 + 가성비" 같은 트렌드 조합을 AI가 자동 제안하고, 클릭 한 번으로 초안을 생성합니다.',
+    href: "/writer",
+  },
 ]
 
-const startSteps = [
-  "생년월일과 태어난 시간을 저장해 오늘의 천간·지지를 준비해요.",
-  "캘린더에서 하루 감정과 메모를 남기고, 필요하면 Supabase 동기화를 켜요.",
-  "통계 화면에서 반복되는 감정/오행 패턴을 점검하고 계획에 반영해요.",
-  "프리미엄이 되면 AI 요약과 월간 리포트로 더 깊은 분석을 받아요."
+const steps = [
+  {
+    number: 1,
+    title: "오늘의 글감 확인",
+    description: "매일 자동 업데이트되는 타임라인에서 트렌드 키워드를 발견하세요.",
+  },
+  {
+    number: 2,
+    title: "제목과 일정 작성",
+    description: "마음에 드는 글감을 선택하고 제목과 마감일을 설정합니다.",
+  },
+  {
+    number: 3,
+    title: "AI 초안 생성 (프리미엄)",
+    description: "AI가 SEO 최적화된 블로그 초안을 자동으로 생성합니다.",
+  },
 ]
 
-const faqs = [
+const pricingPlans = [
   {
-    question: "만세력 계산은 어떻게 진행되나요?",
-    answer:
-      "공식 릴리스에서는 lunar-javascript 모듈을 사용해 간지, 월령, 대운 정보를 정확히 계산합니다."
+    name: "무료 플랜",
+    price: "₩0",
+    period: "영구 무료",
+    features: [
+      "글감 캘린더 접근",
+      "계획 관리 (월 5개)",
+      "키워드 조합 추천",
+      "기본 통계 확인",
+    ],
+    cta: "무료로 시작하기",
+    href: "/calendar",
+    isPrimary: false,
   },
   {
-    question: "내 기록은 어디에 저장되나요?",
-    answer:
-      "로그인 전에는 브라우저 LocalStorage에 저장되고, 로그인하면 Supabase DB(RLS 적용)로 안전하게 동기화돼요."
+    name: "프리미엄",
+    price: "₩9,900",
+    period: "월",
+    badge: "추천",
+    features: [
+      "모든 무료 기능",
+      "무제한 계획 생성",
+      "AI 블로그 초안 생성",
+      "SEO 최적화 제안",
+      "우선 고객 지원",
+    ],
+    cta: "프리미엄 시작하기",
+    href: "/plan",
+    isPrimary: true,
   },
-  {
-    question: "프리미엄 기능은 무엇인가요?",
-    answer:
-      "AI 기반 일기 요약, 월간 인사이트 리포트, 고급 차트, 커뮤니티 프리미엄 공간 등을 순차적으로 제공할 예정입니다."
-  }
 ]
 
 export default function Page() {
   return (
-    <main className="container flex flex-col gap-20 py-16">
-      <section className="grid items-center gap-12 lg:grid-cols-[minmax(0,1.2fr),minmax(0,1fr)]">
-        <div className="space-y-6">
-          <span className="badge border-brand text-brand">사주 일기 MVP</span>
-          <h1 className="text-3xl font-extrabold leading-snug md:text-5xl">
-            하루의 감정과 오행 흐름을
-            <br className="hidden md:block" />
-            한 화면에서 기록하고 분석하세요.
+    <main className="container flex flex-col gap-24 py-16">
+      {/* Hero Section */}
+      <section className="grid items-center gap-12 lg:grid-cols-2">
+        <div className="space-y-8">
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
+            <TrendingUp className="h-4 w-4" />
+            <span>실시간 트렌드 기반 글감 추천</span>
+          </div>
+
+          <h1 className="text-4xl font-extrabold leading-tight md:text-6xl">
+            매일 블로그 뭐 쓰지?
+            <br />
+            <span className="text-primary">고민 끝.</span>
           </h1>
-          <p className="max-w-xl text-neutral-700 md:text-lg">
-            오늘의 천간지지, 감정 기록, 계획 수립까지 한 번에 관리하는 사주 기반 라이프로그 서비스예요. 만세력 캘린더와
-            감정 통계를 통해 나만의 패턴을 발견해 보세요.
+
+          <p className="text-lg text-muted-foreground md:text-xl">
+            실시간 트렌드로 글감 찾고, 계획 세우는 연구소.
+            <br />
+            오늘의 기념일, 날씨, 인기 키워드까지 한눈에 확인하세요.
           </p>
-          <div className="flex flex-wrap gap-3">
-            <Link href="/calendar" className="btn-primary">
-              오늘 기록 시작하기
+
+          <div className="flex flex-wrap gap-4">
+            <Link
+              href="/calendar"
+              className="inline-flex h-12 items-center justify-center rounded-lg bg-primary px-8 text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+            >
+              오늘의 글감 보기 →
             </Link>
-            <Link href="/stats" className="btn-ghost">
-              통계 미리 보기
+            <Link
+              href="/plan"
+              className="inline-flex h-12 items-center justify-center rounded-lg border border-input bg-background px-8 text-base font-semibold transition-colors hover:bg-accent hover:text-accent-foreground"
+            >
+              무료로 시작하기
             </Link>
           </div>
         </div>
-        <div className="card flex flex-col gap-6 p-6">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-neutral-500">오늘의 스냅샷</span>
-            <span className="rounded-full bg-brand/10 px-3 py-1 text-xs font-medium text-brand">베타 데이터</span>
+
+        {/* Preview Card */}
+        <div className="rounded-2xl border bg-card p-8 shadow-xl">
+          <div className="mb-6 flex items-center justify-between">
+            <h3 className="text-lg font-semibold">오늘의 글감 미리보기</h3>
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+              실시간 업데이트
+            </span>
           </div>
+
           <div className="space-y-4">
-            <div className="rounded-xl border border-neutral-100 bg-neutral-50 p-4">
-              <p className="text-sm text-neutral-500">오늘의 천간/지지</p>
-              <p className="text-lg font-semibold text-neutral-900">계갑 / 辛巳</p>
-              <p className="text-sm text-neutral-600">
-                균형 잡힌 금의 기운으로 관계와 커뮤니케이션에 집중해 보세요.
-              </p>
-            </div>
-            <div>
-              <p className="mb-2 text-sm font-semibold text-neutral-600">감정 체크</p>
-              <div className="grid grid-cols-5 gap-2 text-2xl">
-                {['😞', '😐', '🙂', '😀', '🤩'].map((emoji) => (
-                  <div
-                    key={emoji}
-                    className="flex h-12 items-center justify-center rounded-lg border border-neutral-200 bg-white"
-                  >
-                    {emoji}
+            {trendingTopics.map((topic, index) => {
+              const Icon = topic.icon
+              return (
+                <div
+                  key={index}
+                  className="flex items-center gap-4 rounded-xl border bg-background p-4 transition-all hover:border-primary/50 hover:shadow-md"
+                >
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                    <Icon className="h-6 w-6 text-primary" />
                   </div>
-                ))}
-              </div>
-            </div>
+                  <div className="flex-1">
+                    <p className="font-semibold">{topic.title}</p>
+                    <p className="text-sm text-muted-foreground">{topic.date} • {topic.category}</p>
+                  </div>
+                </div>
+              )
+            })}
           </div>
-          <p className="text-xs text-neutral-500">실제 데이터와 AI 요약은 로그인 후 자동으로 채워집니다.</p>
-        </div>
-      </section>
 
-      <section className="grid gap-6 md:grid-cols-3">
-        {featureCards.map((feature) => (
-          <article key={feature.title} className="card flex flex-col justify-between p-6">
-            <div className="space-y-3">
-              <h3 className="text-xl font-semibold">{feature.title}</h3>
-              <p className="text-sm text-neutral-600">{feature.description}</p>
-            </div>
-            <Link href={feature.href} className="btn-ghost mt-6 self-start">
-              {feature.cta}
-            </Link>
-          </article>
-        ))}
-      </section>
-
-      <section className="card grid gap-8 p-10 md:grid-cols-[minmax(0,1.1fr),minmax(0,1fr)]">
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold">이렇게 활용해 보세요</h2>
-          <p className="text-neutral-600">
-            첫 번째 MVP는 로컬 저장 기반이지만, Supabase 연동과 AI 리포트를 준비하고 있어요. 아래 순서를 따라 천천히
-            기능을 확장해 보세요.
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            로그인하면 AI 추천 조합까지 확인 가능
           </p>
         </div>
-        <ol className="space-y-3 text-sm text-neutral-700">
-          {startSteps.map((step, index) => (
-            <li key={step} className="flex gap-3 rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand/10 text-sm font-bold text-brand">
-                {index + 1}
-              </span>
-              <span className="leading-relaxed">{step}</span>
-            </li>
+      </section>
+
+      {/* Core Features */}
+      <section className="space-y-8">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold md:text-4xl">
+            블로거를 위한 스마트한 글감 연구소
+          </h2>
+          <p className="mt-4 text-lg text-muted-foreground">
+            매일 뭐 쓸지 고민하는 시간을 줄이고, 글쓰기에 집중하세요
+          </p>
+        </div>
+
+        <div className="grid gap-8 md:grid-cols-3">
+          {coreFeatures.map((feature, index) => {
+            const Icon = feature.icon
+            return (
+              <Link key={index} href={feature.href}>
+                <article className="group h-full rounded-2xl border bg-card p-8 transition-all hover:border-primary/50 hover:shadow-xl">
+                  <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 transition-colors group-hover:bg-primary/20">
+                    <Icon className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="mb-3 text-xl font-bold">{feature.title}</h3>
+                  <p className="text-muted-foreground">{feature.description}</p>
+                </article>
+              </Link>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section className="rounded-3xl border bg-gradient-to-br from-primary/5 to-primary/10 p-12">
+        <div className="mb-12 text-center">
+          <h2 className="text-3xl font-bold md:text-4xl">3단계로 시작하는 스마트 블로깅</h2>
+          <p className="mt-4 text-lg text-muted-foreground">
+            복잡한 설정 없이 바로 시작할 수 있습니다
+          </p>
+        </div>
+
+        <div className="grid gap-8 md:grid-cols-3">
+          {steps.map((step) => (
+            <div key={step.number} className="relative">
+              <div className="rounded-2xl border bg-background p-8">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-xl font-bold text-primary-foreground">
+                  {step.number}
+                </div>
+                <h3 className="mb-3 text-xl font-bold">{step.title}</h3>
+                <p className="text-muted-foreground">{step.description}</p>
+              </div>
+              {step.number < 3 && (
+                <div className="absolute right-0 top-1/2 hidden h-0.5 w-8 -translate-y-1/2 translate-x-full bg-primary/30 md:block" />
+              )}
+            </div>
           ))}
-        </ol>
+        </div>
       </section>
 
-      <section className="grid gap-6 md:grid-cols-3">
-        {faqs.map((faq) => (
-          <article key={faq.question} className="card p-6">
-            <h3 className="text-base font-semibold text-neutral-900">{faq.question}</h3>
-            <p className="mt-3 text-sm text-neutral-600">{faq.answer}</p>
-          </article>
-        ))}
+      {/* Social Proof */}
+      <section className="text-center">
+        <div className="inline-flex flex-col items-center gap-4 rounded-2xl border bg-card p-8">
+          <div className="flex -space-x-2">
+            {[...Array(5)].map((_, i) => (
+              <div
+                key={i}
+                className="h-10 w-10 rounded-full border-2 border-background bg-gradient-to-br from-primary to-primary/50"
+              />
+            ))}
+          </div>
+          <p className="text-2xl font-bold">이미 1,200명의 블로거가 사용 중</p>
+          <p className="text-muted-foreground">
+            매일 평균 50개의 새로운 글감이 추가되고 있습니다
+          </p>
+        </div>
       </section>
 
-      <section className="card flex flex-col items-center gap-4 p-10 text-center">
-        <h2 className="text-2xl font-bold">곧 공개될 프리미엄 기능도 기대해 주세요</h2>
-        <p className="max-w-2xl text-neutral-600">
-          Stripe/Toss 구독과 연동되는 AI 사주 분석, 월간 요약 리포트, 커뮤니티 프리미엄 존 등 로드맵에 있는 기능을
-          차근차근 공개할 예정입니다. 지금은 일기부터 차근차근 기록해 보세요!
+      {/* Pricing */}
+      <section className="space-y-8">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold md:text-4xl">
+            무료로 시작하고, 필요할 때 업그레이드
+          </h2>
+          <p className="mt-4 text-lg text-muted-foreground">
+            모든 플랜에서 핵심 기능을 사용할 수 있습니다
+          </p>
+        </div>
+
+        <div className="grid gap-8 md:grid-cols-2 lg:gap-12">
+          {pricingPlans.map((plan) => (
+            <article
+              key={plan.name}
+              className={`relative rounded-3xl border p-8 ${
+                plan.isPrimary
+                  ? "border-primary bg-gradient-to-br from-primary/5 to-primary/10 shadow-xl"
+                  : "bg-card"
+              }`}
+            >
+              {plan.badge && (
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                  <span className="rounded-full bg-primary px-4 py-1 text-sm font-bold text-primary-foreground">
+                    {plan.badge}
+                  </span>
+                </div>
+              )}
+
+              <div className="mb-6">
+                <h3 className="text-2xl font-bold">{plan.name}</h3>
+                <div className="mt-4 flex items-baseline gap-2">
+                  <span className="text-5xl font-bold">{plan.price}</span>
+                  <span className="text-muted-foreground">/ {plan.period}</span>
+                </div>
+              </div>
+
+              <ul className="mb-8 space-y-4">
+                {plan.features.map((feature, index) => (
+                  <li key={index} className="flex items-start gap-3">
+                    <CheckSquare className="h-5 w-5 flex-shrink-0 text-primary" />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                href={plan.href}
+                className={`block w-full rounded-lg py-3 text-center font-semibold transition-colors ${
+                  plan.isPrimary
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                    : "border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                }`}
+              >
+                {plan.cta}
+              </Link>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="rounded-3xl border bg-gradient-to-r from-primary to-primary/80 p-12 text-center text-primary-foreground">
+        <h2 className="text-3xl font-bold md:text-4xl">
+          지금 바로 오늘의 글감을 확인하세요
+        </h2>
+        <p className="mx-auto mt-4 max-w-2xl text-lg opacity-90">
+          무료로 시작해서 블로그 운영이 얼마나 쉬워지는지 경험해 보세요.
+          <br />
+          신용카드 등록 없이 바로 사용 가능합니다.
         </p>
-        <div className="flex flex-wrap justify-center gap-3">
-          <Link href="/free" className="btn-ghost">
-            무료 사주 미리보기
-          </Link>
-          <Link href="/community" className="btn-primary">
-            커뮤니티 참여 준비 알림 받기
+        <div className="mt-8 flex flex-wrap justify-center gap-4">
+          <Link
+            href="/calendar"
+            className="inline-flex h-12 items-center justify-center rounded-lg bg-background px-8 text-base font-semibold text-foreground transition-colors hover:bg-background/90"
+          >
+            무료로 시작하기 →
           </Link>
         </div>
       </section>

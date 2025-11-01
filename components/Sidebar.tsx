@@ -3,24 +3,22 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
-  BadgeCheck,
   CalendarDays,
-  LayoutDashboard,
+  Home,
   PencilLine,
   Shield,
-  Target,
+  ListTodo,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "./ui/button"
 
 const menuItems = [
-  { href: "/", label: "대시보드", icon: LayoutDashboard },
+  { href: "/", label: "홈", icon: Home },
   { href: "/calendar", label: "글감 캘린더", icon: CalendarDays },
+  { href: "/plan", label: "블로그 계획", icon: ListTodo },
   { href: "/writer", label: "AI 카피라이팅", icon: PencilLine },
   { href: "/diagnosis", label: "블로그 진단", icon: Shield },
-  { href: "/branding", label: "브랜드 분석", icon: Target },
-  { href: "/mission", label: "오늘의 미션", icon: BadgeCheck },
 ]
 
 export function Sidebar() {
@@ -31,7 +29,7 @@ export function Sidebar() {
       <div className="flex flex-1 flex-col gap-y-6 px-6 py-8">
         <div className="flex items-center gap-x-4">
             <p className="text-lg font-semibold leading-tight">
-                블로그 뭐쓰지 AI
+                블로그 글감 연구소
             </p>
         </div>
 
@@ -65,16 +63,16 @@ export function Sidebar() {
 
         <div className="mt-auto rounded-lg border bg-card p-4 text-sm leading-relaxed text-card-foreground">
           <p className="font-semibold ">
-            주간 리포트 자동화
+            프리미엄으로 업그레이드
           </p>
           <p className="mt-1 text-muted-foreground">
-            Pro 플랜으로 AI 진단 + 이메일 리포트를 예약 발송해 보세요.
+            AI 블로그 초안 생성과 무제한 계획 관리를 시작하세요.
           </p>
           <Button
-            
+
             className="mt-4 w-full"
           >
-            업그레이드
+            프리미엄 시작하기
           </Button>
         </div>
       </div>

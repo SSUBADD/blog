@@ -16,12 +16,11 @@ import {
 } from "./ui/sheet"
 
 const navItems = [
-  { href: "/", label: "대시보드" },
+  { href: "/", label: "홈" },
   { href: "/calendar", label: "글감 캘린더" },
-  { href: "/writer", label: "AI 카피" },
+  { href: "/plan", label: "블로그 계획" },
+  { href: "/writer", label: "AI 카피라이팅" },
   { href: "/diagnosis", label: "블로그 진단" },
-  { href: "/branding", label: "브랜딩" },
-  { href: "/mission", label: "미션" },
 ]
 
 export function Header() {
@@ -42,7 +41,7 @@ export function Header() {
               </SheetTrigger>
               <SheetContent side="left" className="w-72">
                 <SheetHeader className="mb-6 text-left">
-                  <SheetTitle>블로그 뭐쓰지 AI</SheetTitle>
+                  <SheetTitle>블로그 글감 연구소</SheetTitle>
                 </SheetHeader>
                 <nav className="grid gap-3 text-sm font-medium">
                   {navItems.map((item) => (
@@ -66,9 +65,9 @@ export function Header() {
           <div className="hidden items-center gap-4 text-sm text-muted-foreground md:flex">
             <div className="flex items-center gap-1 rounded-full border bg-secondary px-3 py-1 text-foreground">
               <Sparkles className="h-4 w-4 text-primary" />
-              <span>금주 추천 6건</span>
+              <span>오늘의 글감 6건</span>
             </div>
-            <span>AI 작성 12건 / Free 플랜</span>
+            <span>무료 플랜</span>
           </div>
         </div>
         <div className="flex items-center gap-2 md:gap-3">
@@ -79,7 +78,7 @@ export function Header() {
             asChild
             className="text-sm font-semibold"
           >
-            <Link href="/writer">새 글 작성</Link>
+            <Link href="/writer">AI 글쓰기</Link>
           </Button>
           <Button
             variant="ghost"
