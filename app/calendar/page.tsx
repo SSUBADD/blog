@@ -1,10 +1,5 @@
-"use client"
-
-import { useEffect, useState } from 'react'
-import { format, addMonths, subMonths } from 'date-fns'
-import { ko } from 'date-fns/locale'
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, TrendingUp, Sparkles, BarChart3 } from 'lucide-react'
-import { CalendarGrid } from '@/components/CalendarGrid'
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, TrendingUp, Sparkles } from 'lucide-react'
+import { Calendar } from "@/components/ui/calendar"
 import { CalendarDetailSheet } from '@/components/CalendarDetailSheet'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -13,24 +8,25 @@ import {
   loadMetadata,
   loadMonthData,
   getRecommendedItems,
-  getThisWeekItems,
-  getCategoryStats,
   getTopKeywords,
+  getItemsByDateMap,
   type MonthData,
   type CalendarMeta,
   type CalendarItem
 } from '@/lib/calendar-loader'
 import { cn } from '@/lib/utils'
+import { parseISO, isSameDay } from 'date-fns'
 
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [monthData, setMonthData] = useState<MonthData | null>(null)
   const [metadata, setMetadata] = useState<CalendarMeta | null>(null)
   const [loading, setLoading] = useState(true)
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
   const [selectedItems, setSelectedItems] = useState<CalendarItem[]>([])
   const [sheetOpen, setSheetOpen] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [itemsByDate, setItemsByDate] = useState<Map<string, CalendarItem[]>>(new Map())
+  const [daysWithItems, setDaysWithItems] = useState<Date[]>([])
 
   // 메타데이터 로드
   useEffect(() => {
@@ -46,40 +42,57 @@ export default function CalendarPage() {
 
     setLoading(true)
     loadMonthData(year, month)
-      .then(setMonthData)
+      .then(data => {
+        setMonthData(data)
+        const map = getItemsByDateMap(data)
+        setItemsByDate(map)
+        const days = Array.from(map.keys()).map(dateStr => parseISO(dateStr))
+        setDaysWithItems(days)
+      })
       .catch((error) => {
         console.error('Failed to load month data:', error)
         setMonthData(null)
+        setItemsByDate(new Map())
+        setDaysWithItems([])
       })
       .finally(() => setLoading(false))
   }, [currentDate])
 
   // 날짜 선택 핸들러
-  const handleDateSelect = (date: Date, items: CalendarItem[]) => {
+  const handleDateSelect = (date: Date | undefined) => {
+    if (!date) {
+      setSelectedDate(undefined)
+      setSelectedItems([])
+      setSheetOpen(false)
+      return
+    }
+
+    const dateString = format(date, 'yyyy-MM-dd')
+    const items = itemsByDate.get(dateString) || []
+    
     setSelectedDate(date)
     setSelectedItems(items)
-    setSheetOpen(true)
+    if (items.length > 0) {
+      setSheetOpen(true)
+    } else {
+      setSheetOpen(false)
+    }
   }
 
   // 월 이동
   const goToPreviousMonth = () => setCurrentDate(prev => subMonths(prev, 1))
   const goToNextMonth = () => setCurrentDate(prev => addMonths(prev, 1))
-  const goToToday = () => setCurrentDate(new Date())
-
+  const goToToday = () => {
+    const today = new Date()
+    setCurrentDate(today)
+    setSelectedDate(today)
+  }
+  
   // 추천 글감
   const recommendedItems = monthData ? getRecommendedItems(monthData, { priority: 'high', trending: true, count: 6 }) : []
   
-  // 이번 주 글감
-  const thisWeekItems = monthData ? getThisWeekItems(monthData) : []
-  
-  // 카테고리 통계
-  const categoryStats = monthData ? getCategoryStats(monthData) : {}
-  
   // 인기 키워드
   const topKeywords = monthData ? getTopKeywords(monthData, 8) : []
-
-  // 필터링된 카테고리 배열
-  const filteredCategories = selectedCategory ? [selectedCategory] : []
 
   if (loading) {
     return (
@@ -104,8 +117,6 @@ export default function CalendarPage() {
     )
   }
 
-  const totalItems = Object.values(categoryStats).reduce((sum, count) => sum + count, 0)
-
   return (
     <div className="space-y-6">
       {/* 헤더 */}
@@ -122,34 +133,31 @@ export default function CalendarPage() {
                     </Badge>
                     </div>
                     <p className="mt-2 text-sm text-muted-foreground">
-                    📅 매일 새로운 글감으로 콘텐츠 고민 해결
+                    📅 날짜를 선택해 글감을 확인하세요. 점으로 표시된 날에 글감이 있습니다.
                     </p>
                 </div>
                 
                 {/* 월 이동 컨트롤 */}
                 <div className="flex items-center gap-2">
                     <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={goToPreviousMonth}
-                    
+                      variant="outline"
+                      size="icon"
+                      onClick={goToPreviousMonth}
                     >
-                    <ChevronLeft className="h-4 w-4" />
+                      <ChevronLeft className="h-4 w-4" />
                     </Button>
                     <Button
-                    variant="outline"
-                    onClick={goToToday}
-                    
+                      variant="outline"
+                      onClick={goToToday}
                     >
-                    오늘
+                      오늘
                     </Button>
                     <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={goToNextMonth}
-                    
+                      variant="outline"
+                      size="icon"
+                      onClick={goToNextMonth}
                     >
-                    <ChevronRight className="h-4 w-4" />
+                      <ChevronRight className="h-4 w-4" />
                     </Button>
                 </div>
             </div>
@@ -158,63 +166,41 @@ export default function CalendarPage() {
 
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         {/* 메인 캘린더 */}
-        <div className="space-y-4">
-          {/* 카테고리 필터 */}
-          <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <BarChart3 className="h-5 w-5 text-primary" />
-                    카테고리 필터
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="flex flex-wrap gap-2">
-                <button
-                    type="button"
-                    onClick={() => setSelectedCategory(null)}
-                    className={cn(
-                    "rounded-full px-4 py-2 text-sm font-medium transition-all",
-                    selectedCategory === null
-                        ? "bg-primary text-primary-foreground shadow-md"
-                        : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+        <Card className="p-0">
+          <Calendar
+            mode="single"
+            selected={selectedDate}
+            onSelect={handleDateSelect}
+            month={currentDate}
+            onMonthChange={setCurrentDate}
+            locale={ko}
+            modifiers={{
+              hasItems: daysWithItems,
+            }}
+            modifiersStyles={{
+              hasItems: {
+                position: 'relative',
+              }
+            }}
+            components={{
+              DayContent: (props) => {
+                const { date, activeModifiers } = props;
+                const hasItems = activeModifiers.hasItems;
+                const isSelected = activeModifiers.selected;
+
+                return (
+                  <div className="relative flex h-full w-full items-center justify-center">
+                    {format(date, 'd')}
+                    {hasItems && !isSelected && (
+                      <div className="absolute bottom-1 h-1 w-1 rounded-full bg-primary" />
                     )}
-                >
-                    전체 ({totalItems})
-                </button>
-                {metadata.categories.map((cat) => (
-                    <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => setSelectedCategory(cat.id)}
-                    className={cn(
-                        "rounded-full px-4 py-2 text-sm font-medium transition-all",
-                        selectedCategory === cat.id
-                        ? "text-white shadow-md"
-                        : "hover:opacity-80"
-                    )}
-                    style={{
-                        backgroundColor: selectedCategory === cat.id ? cat.color : `${cat.color}20`,
-                        color: selectedCategory === cat.id ? 'white' : cat.color
-                    }}
-                    >
-                    {cat.name} ({categoryStats[cat.id] || 0})
-                    </button>
-                ))}
-                </div>
-            </CardContent>
-          </Card>
-          
-          {/* 캘린더 그리드 */}
-          <Card className="p-6">
-            <CalendarGrid
-              data={monthData}
-              currentDate={currentDate}
-              selectedDate={selectedDate}
-              onDateSelect={handleDateSelect}
-              filteredCategories={filteredCategories}
-            />
-          </Card>
-        </div>
+                  </div>
+                );
+              }
+            }}
+            className="w-full"
+          />
+        </Card>
 
         {/* 사이드바 */}
         <div className="space-y-4">
@@ -228,10 +214,10 @@ export default function CalendarPage() {
             </CardHeader>
             <CardContent className="space-y-3">
               {recommendedItems.slice(0, 4).map((item) => (
-                <div
+                 <div
                   key={item.id}
                   className="rounded-lg border bg-card p-3 cursor-pointer hover:shadow-md transition-all hover:border-primary/50"
-                  onClick={() => handleDateSelect(new Date(item.date), [item])}
+                  onClick={() => handleDateSelect(parseISO(item.date))}
                 >
                   <div className="flex items-start gap-2">
                     {item.trending && <span className="text-sm">🔥</span>}
@@ -240,7 +226,7 @@ export default function CalendarPage() {
                         {item.title}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        {format(new Date(item.date), 'M/d (EEE)', { locale: ko })}
+                        {format(parseISO(item.date), 'M/d (EEE)', { locale: ko })}
                       </p>
                     </div>
                   </div>
@@ -275,26 +261,11 @@ export default function CalendarPage() {
               </div>
             </CardContent>
           </Card>
-
-          {/* 활용 팁 */}
-          <Card className="bg-secondary/50 border-primary/20">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-primary">💡 활용 팁</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2 text-sm text-foreground/80">
-                <li>✨ 날짜를 클릭해 상세 정보를 확인하세요</li>
-                <li>🎯 카테고리별로 필터링해 보세요</li>
-                <li>🔥 HOT 글감은 트렌딩 주제입니다</li>
-                <li>📝 AI 작성기로 바로 연결됩니다</li>
-              </ul>
-            </CardContent>
-          </Card>
         </div>
       </div>
 
       {/* 상세 시트 */}
-      {metadata && <CalendarDetailSheet
+      {metadata && selectedDate && <CalendarDetailSheet
         open={sheetOpen}
         onOpenChange={setSheetOpen}
         date={selectedDate}

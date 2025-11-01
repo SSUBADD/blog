@@ -1,156 +1,220 @@
-"use client"
+'use client'
 
-import { useEffect, useState } from "react"
-import { ArrowRight, CalendarDays, CheckCircle2, Sparkles } from "lucide-react"
-import Link from "next/link"
-
+import { useEffect, useState } from 'react'
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { loadMonthData, getRecommendedItems, type CalendarItem } from "@/lib/calendar-loader"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ArrowRight, Cpu, Thermometer } from 'lucide-react'
+import Link from 'next/link'
 
-const quickLinks = [
-  {
-    title: "AI 카피 생성기",
-    description: "톤·CTA 선택 후 20초 내 결과",
-    href: "/writer",
-  },
-  {
-    title: "브랜드 SWOT 정리",
-    description: "팀 메모 공유용으로 정리",
-    href: "/branding",
-  },
-  {
-    title: "블로그 계획",
-    description: "미션과 루틴으로 성장 관리",
-    href: "/plan",
-  },
-]
+// Define types for our dashboard data
+interface TimelineItem {
+  id: number;
+  date: string;
+  title: string;
+  icon: string;
+}
 
-export default function HomePage() {
-  const [highlightedCalendar, setHighlightedCalendar] = useState<CalendarItem[]>([])
+interface PopularKeyword {
+  keyword: string;
+  rank: number;
+}
+
+interface TrendChartData {
+  date: string;
+  value: number;
+}
+
+interface DashboardData {
+  timeline: TimelineItem[];
+  popularKeywords: PopularKeyword[];
+  trendChart: TrendChartData[];
+  aiRecommendation: {
+    combination: string[];
+    prompt: string;
+  };
+  weather: {
+    temp: number;
+    condition: string;
+    recommendation: string;
+  };
+  categories: string[];
+}
+
+
+export default function DashboardPage() {
+  const [data, setData] = useState<DashboardData | null>(null)
+  const [activeTab, setActiveTab] = useState('today')
+  const [activeCategories, setActiveCategories] = useState<string[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    loadCalendarData()
-  }, [])
-
-  const loadCalendarData = async () => {
-    try {
-      const now = new Date()
-      const monthData = await loadMonthData(now.getFullYear(), now.getMonth() + 1)
-      const recommended = getRecommendedItems(monthData, { priority: 'high', trending: true, count: 3 })
-      setHighlightedCalendar(recommended)
-    } catch (error) {
-      console.error('Failed to load calendar data:', error)
+    const fetchData = async () => {
+      setLoading(true)
+      const params = new URLSearchParams({
+        tab: activeTab,
+        categories: activeCategories.join(','),
+      })
+      try {
+        const response = await fetch(`/api/dashboard?${params.toString()}`)
+        const result = await response.json()
+        setData(result)
+      } catch (error) {
+        console.error("Failed to fetch dashboard data:", error)
+        // Handle error state if needed
+      } finally {
+        setLoading(false)
+      }
     }
+
+    fetchData()
+  }, [activeTab, activeCategories])
+
+  const toggleCategory = (category: string) => {
+    setActiveCategories(prev => 
+      prev.includes(category) 
+        ? prev.filter(c => c !== category) 
+        : [...prev, category]
+    )
+  }
+
+  const getKeywordSize = (rank: number) => {
+    if (rank >= 7) return 'text-xl'
+    if (rank >= 4) return 'text-lg'
+    return 'text-base'
+  }
+
+  if (loading || !data) {
+    return (
+      <div className="flex items-center justify-center min-h-[80vh]">
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto" />
+          <p className="text-muted-foreground">대시보드 데이터를 불러오는 중...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="space-y-8">
-      <section >
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-          <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 rounded-full border bg-secondary px-4 py-1 text-sm font-medium text-secondary-foreground">
-              <Sparkles className="h-4 w-4 text-primary" />
-              주간/월간 블로그 글감
-            </div>
-            <h1 className="text-3xl font-bold leading-tight text-foreground">
-              주간/월간 단위로 관리하는
-              <br />
-              블로그 글감·이슈 트래킹
-            </h1>
-            <p className="text-base text-muted-foreground">
-              캘린더에서 최신 트렌드와 시즌성 이슈를 확인하고, AI로 빠르게 글감을 만드세요.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Button asChild size="lg" className="text-base font-semibold">
-                <Link href="/writer">AI 카피 바로 만들기</Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="text-base"
-              >
-                <Link href="/calendar" className="flex items-center gap-2">
-                  이번 주 이슈 보기
-                  <ArrowRight className="h-4 w-4" />
+    <div className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="today">오늘</TabsTrigger>
+          <TabsTrigger value="weekly">이번주</TabsTrigger>
+          <TabsTrigger value="monthly">이번달</TabsTrigger>
+          <TabsTrigger value="seasonal">계절</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column */}
+        <div className="lg:col-span-2 space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>📅 타임라인 (날짜별 글감)</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-wrap gap-4 text-sm">
+              {data.timeline.map(item => (
+                <span key={item.id} className="font-medium">{`${item.date} ${item.title} ${item.icon}`}</span>
+              ))}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>🔥 실시간 인기 키워드</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-wrap items-center gap-4">
+              {data.popularKeywords.sort((a,b) => b.rank - a.rank).map(kw => (
+                <Badge key={kw.keyword} variant="outline" className={`${getKeywordSize(kw.rank)} font-bold py-2 px-4`}>
+                  {kw.keyword}
+                </Badge>
+              ))}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>📈 검색량 추이 차트 (최근 7일)</CardTitle>
+            </CardHeader>
+            <CardContent className="h-[250px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={data.trendChart} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                  <XAxis dataKey="date" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis fontSize={12} tickLine={false} axisLine={false} />
+                  <Tooltip 
+                    contentStyle={{
+                      background: "hsl(var(--background))",
+                      borderColor: "hsl(var(--border))",
+                    }}
+                  />
+                  <Area type="monotone" dataKey="value" strokeWidth={2} stroke="hsl(var(--primary))" fill="hsl(var(--primary) / 0.2)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Column */}
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Cpu size={20} />
+                AI 글감 조합 추천
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-center gap-2">
+                <Badge variant="default" className="text-base">{data.aiRecommendation.combination[0]}</Badge>
+                <span className="font-bold">+</span>
+                <Badge variant="default" className="text-base">{data.aiRecommendation.combination[1]}</Badge>
+              </div>
+              <Button asChild className="w-full">
+                <Link href={`/writer?prompt=${encodeURIComponent(data.aiRecommendation.prompt)}`}>
+                  바로 AI 카피 생성 <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
-        </div>
-      </section>
-
-      <section className="grid gap-6 lg:grid-cols-3">
-        {highlightedCalendar.length > 0 ? (
-          highlightedCalendar.map((item) => (
-            <Card key={item.id}>
-              <CardHeader className="space-y-1">
-                <div className="flex items-start justify-between gap-2">
-                  <CardTitle className="text-lg font-semibold text-foreground">{item.title}</CardTitle>
-                  {item.trending && <span className="text-sm">🔥</span>}
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  <span className="font-medium text-primary">{item.date}</span>
-                </p>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex flex-wrap gap-2">
-                  {item.keywords.slice(0, 3).map((keyword) => (
-                    <Badge key={keyword} variant="secondary">
-                      #{keyword}
-                    </Badge>
-                  ))}
-                </div>
-                <p className="text-sm text-muted-foreground line-clamp-2">{item.desc}</p>
-                <Button
-                  asChild
-                  variant="secondary"
-                  className="w-full"
+          <Card>
+            <CardHeader>
+              <CardTitle>🎯 카테고리별 필터</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-wrap gap-2">
+              {data.categories.map(cat => (
+                <Button 
+                  key={cat} 
+                  variant={activeCategories.includes(cat) ? 'default' : 'outline'}
+                  onClick={() => toggleCategory(cat)}
                 >
-                  <Link href={`/writer?topic=${encodeURIComponent(item.title)}&keywords=${encodeURIComponent(item.keywords.join(", "))}`}>
-                    이 주제로 바로 작성
-                  </Link>
+                  {cat}
                 </Button>
-              </CardContent>
-            </Card>
-          ))
-        ) : (
-          <div className="col-span-3 py-12 text-center text-muted-foreground">
-            추천 글감을 불러오는 중...
-          </div>
-        )}
-      </section>
+              ))}
+            </CardContent>
+          </Card>
 
-      <section className="grid gap-6 lg:grid-cols-1">
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-xl">
-              <Sparkles className="h-5 w-5 text-primary" />
-              퀵 액션
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-4">
-            {quickLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="group flex items-center justify-between rounded-lg border bg-background p-5 text-left transition hover:border-primary hover:bg-secondary"
-              >
-                <div>
-                  <p className="text-base font-semibold text-foreground">{link.title}</p>
-                  <p className="text-sm text-muted-foreground">{link.description}</p>
-                </div>
-                <ArrowRight className="h-5 w-5 text-muted-foreground transition group-hover:translate-x-1 group-hover:text-primary" />
-              </Link>
-            ))}
-          </CardContent>
-        </Card>
-      </section>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Thermometer size={20} />
+                날씨 기반 추천
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-center space-y-3">
+              <p className='font-bold text-lg'>{`오늘 ${data.weather.condition} ${data.weather.temp}°C`}</p>
+              <Button asChild variant="secondary" className="w-full">
+                <Link href={`/writer?prompt=${encodeURIComponent(data.weather.recommendation)}`}>
+                  {`→ "${data.weather.recommendation}" AI 카피 생성`}
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   )
 }
