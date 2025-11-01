@@ -41,10 +41,10 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_key
 npm run dev
 ```
 
-http://localhost:3000 에서 확인
+직접 GIT 푸시 VERCEL 배포 웹에서 직접 확인!
 
 ## 📖 상세 가이드
-
+- **메인페이지**: [UP.md](./UP.md)
 - **설정 가이드**: [SETUP.md](./SETUP.md)
 - **Vercel 배포**: [VERCEL-DEPLOY.md](./VERCEL-DEPLOY.md) ⭐ 새로 추가!
 - **MVP 완료 보고서**: [MVP-COMPLETION-REPORT.md](./MVP-COMPLETION-REPORT.md)

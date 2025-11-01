@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, TrendingUp, Sparkles } from 'lucide-react'
 import { Calendar } from "@/components/ui/calendar"
 import { CalendarDetailSheet } from '@/components/CalendarDetailSheet'
