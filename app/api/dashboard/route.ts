@@ -1,6 +1,5 @@
 // app/api/dashboard/route.ts
 import { NextResponse } from 'next/server';
-import googleTrends from 'google-trends-api';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, parseISO, isWithinInterval, format } from 'date-fns';
@@ -37,8 +36,6 @@ async function getTimelineData(tab: string): Promise<CalendarItem[]> {
         interval = { start: startOfDay(now), end: endOfDay(now) };
     }
 
-    // For this example, we'll just read the current month's file.
-    // A real implementation might need to read multiple files for 'seasonal' or 'weekly' tabs spanning two months.
     const fileName = `${format(now, 'yyyy-MM')}.json`;
     const filePath = path.join(process.cwd(), 'public', 'data', fileName);
     
@@ -57,11 +54,10 @@ async function getTimelineData(tab: string): Promise<CalendarItem[]> {
 
     const filteredItems = allItems.filter(item => isWithinInterval(parseISO(item.date), interval));
     
-    return filteredItems.slice(0, 10); // Limit items for display
+    return filteredItems.slice(0, 10);
 
   } catch (error) {
     console.error("Error fetching timeline data:", error);
-    // Return a default or empty array in case of error (e.g., file not found)
     return [
         { id: 1, date: '11/1', title: '김치의 날', icon: '🔥', category: 'event' },
         { id: 2, date: '11/7', title: '입동', icon: '🍂', category: 'season' },
@@ -69,35 +65,14 @@ async function getTimelineData(tab: string): Promise<CalendarItem[]> {
   }
 }
 
-// Fetch popular keywords from Google Trends
-async function getPopularKeywords() {
-  try {
-    const trendsData = await googleTrends.dailyTrends({ geo: 'KR' });
-    const trends = JSON.parse(trendsData).default.trendingSearchesDays[0].trendingSearches;
-    return trends.slice(0, 9).map((trend: any, index: number) => ({
-      keyword: trend.title.query,
-      rank: 9 - index, // Simple ranking
-    }));
-  } catch (error) {
-    console.error("Error fetching popular keywords:", error);
-    return [
-      { keyword: '블랙프라이데이', rank: 9 },
-      { keyword: '패딩', rank: 8 },
-    ];
-  }
-}
-
-
-
 // Fetch weather data
 async function getWeatherData() {
   try {
-    // IMPORTANT: Replace with your own OpenWeatherMap API key in .env.local
     const apiKey = process.env.OPENWEATHER_API_KEY || 'YOUR_API_KEY_HERE';
     if (apiKey === 'YOUR_API_KEY_HERE') {
         throw new Error('OpenWeatherMap API key is not configured.');
     }
-    const city = 'Seoul'; // or get user's location
+    const city = 'Seoul';
     const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=kr`;
 
     const response = await fetch(url);
@@ -118,7 +93,6 @@ async function getWeatherData() {
 
   } catch (error) {
     console.error("Error fetching weather data:", error);
-    // Return fallback data on error
     return {
       temp: 10,
       condition: '날씨 정보 없음',
@@ -134,16 +108,17 @@ export async function GET(request: Request) {
   const tab = searchParams.get('tab') || 'today';
   const categories = searchParams.get('categories')?.split(',').filter(Boolean) || [];
 
-  // Fetch all data in parallel
-  const popularKeywords = await getPopularKeywords();
-  const topKeyword = popularKeywords.length > 0 ? popularKeywords.reduce((a, b) => a.rank > b.rank ? a : b).keyword : '마케팅';
-  
+  const popularKeywords = [
+    { keyword: '샘플 키워드1', rank: 9 },
+    { keyword: '샘플 키워드2', rank: 8 },
+  ];
+  const topKeyword = '샘플';
+
   const [timeline, weather] = await Promise.all([
     getTimelineData(tab),
     getWeatherData(),
   ]);
 
-  // Filter timeline by category if provided
   const filteredTimeline = categories.length > 0 
     ? timeline.filter(item => categories.includes(item.category))
     : timeline;
